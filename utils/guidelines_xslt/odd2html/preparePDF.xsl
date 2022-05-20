@@ -194,7 +194,7 @@
                 <xsl:next-match/>
             </xsl:when>
             <xsl:when test="starts-with(.,'images/') and not(contains(.,'/generated/'))">
-                <xsl:attribute name="src" select="$parentdir.rel || 'source/' || ."/>
+                <xsl:attribute name="src" select="."/>
             </xsl:when>
             <xsl:when test="starts-with(.,'./images/generated/')">
                 <xsl:attribute name="src" select="$build.folder.generated.images.rel || substring(.,20)"/>

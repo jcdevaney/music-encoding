@@ -143,5 +143,14 @@
             point to the files in the source folder.</xd:p>
         </xd:desc>
     </xd:doc>
-    <xsl:variable name="css.folder.print" select="$parentdir.rel || 'source/css/print/'" as="xs:string"/>
+    <xsl:variable name="css.folder.print" as="xs:string">
+        <xsl:choose>
+            <xsl:when test="$source.is.canonicalized">
+                <xsl:value-of select="'assets/css/print/'"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$parentdir.rel || 'source/css/print/'" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
 </xsl:stylesheet>

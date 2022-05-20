@@ -1060,7 +1060,7 @@
                 <xsl:attribute name="src" select="."/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:attribute name="src" select="'../' || ."/>
+                <xsl:attribute name="src" select="'assets/web/' || substring-after(., 'source/')"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

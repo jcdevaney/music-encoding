@@ -130,6 +130,11 @@
     </xd:doc>
     <xsl:param name="basedir" select="''" as="xs:string"/>
     
+    <xd:doc>
+        <xd:desc></xd:desc>
+    </xd:doc>
+    <xsl:variable name="execute.build-steps" select="('build', 'dist')"/>
+    
     <xsl:variable name="source.file" select="/tei:TEI" as="node()"/>
     
     <xd:doc>
@@ -193,6 +198,7 @@
         </xd:desc>
     </xd:doc>
     <xsl:template match="/">
+        
         <xsl:message select="'Processing MEI v' || $version || ' from branch ' || $git.head ||' at revision ' || $retrieved.hash || ' with odd2html.xsl on ' || substring(string(current-date()),1,10)"/>
         <xsl:message select="'.   chapters: ' || count($chapters) || ' (' || count($all.chapters/descendant-or-self::chapter) || ' subchapters)'"/>
         <xsl:message select="'.   elements: ' || count($elements)"/>
@@ -240,26 +246,39 @@
                 <xsl:with-param name="contents" select="$contents" as="node()*"/>
                 <xsl:with-param name="media" select="'print'"/>
             </xsl:call-template>
-        </xsl:variable>
+         </xsl:variable>
+         
+        <xsl:if test="$execute.build-steps = 'build'">
+             <!-- retrieve multiple HTML files for online publication -->
+             <xsl:call-template name="prepareLiveExamples">
+                 <xsl:with-param name="guidelinesSources" select="$mei.source//tei:body/child::tei:div"/>
+             </xsl:call-template>
+             
+             <!--<xsl:result-document href="{$output.folder}MEI_Guidelines_v{$version}_{$hash}_raw.html">
+                 <xsl:sequence select="$singlePage"/>
+             </xsl:result-document>-->
+             
+             <xsl:result-document href="{$build.folder || $pdf.file.name}.html">
+                 <xsl:apply-templates select="$singlePage" mode="preparePDF"/>
+             </xsl:result-document>
+        </xsl:if>
         
-        <!-- retrieve multiple HTML files for online publication -->
-        <xsl:call-template name="prepareLiveExamples">
-            <xsl:with-param name="guidelinesSources" select="$mei.source//tei:body/child::tei:div"/>
-        </xsl:call-template>
-        
-        <!-- retrieve multiple HTML files for online publication -->
-        <xsl:call-template name="generateWebsite">
-            <xsl:with-param name="input" select="$singlePage"/>
-        </xsl:call-template>
-        
-        
-        <!--<xsl:result-document href="{$output.folder}MEI_Guidelines_v{$version}_{$hash}_raw.html">
-            <xsl:sequence select="$singlePage"/>
-        </xsl:result-document>-->
-        
-        <xsl:result-document href="{$build.folder || $pdf.file.name}.html">
-            <xsl:apply-templates select="$singlePage" mode="preparePDF"/>
-        </xsl:result-document>
+        <xsl:if test="$execute.build-steps = 'dist'">
+            <!-- DIST -->
+            <!-- retrieve multiple HTML files for online publication -->
+            <xsl:choose>
+                <xsl:when test="$execute.build-steps = 'build'">
+                    <xsl:call-template name="generateWebsite">
+                        <xsl:with-param name="input" select="$singlePage"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="generateWebsite">
+                        <xsl:with-param name="input" select="doc($build.folder || $pdf.file.name || '.html')"/>
+                    </xsl:call-template>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:if>
         
     </xsl:template>
     

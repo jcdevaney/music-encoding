@@ -186,6 +186,7 @@
     </target>
 
     <target name="build-guidelines-html" depends="canonicalize-source, get-local-git-sha, get-local-git-branch">
+        <property name="execute.build-steps" value="build"/>
         <!-- TODO check dependency try with mei-source.xml -->
         <basename property="odd.basename" file="${customization.path}" suffix=".xml"/>
         <echo message="building HTML guidelines for ${odd.basename} from ${customization.path} on branch ${github.branch.local}"/>
@@ -204,17 +205,15 @@
             <arg value="hash=${hash}"/>
             <arg value="branch=${github.branch.local}"/>
             <arg value="basedir=${basedir}"/>
+            <arg value="execute.build-steps=${execute.build-steps}"/>
         </java>
-        <antcall target="copy-guidelines-html-assets"/>
-    </target>
-    <target name="copy-guidelines-html-assets">
-        <copy todir="${dir.dist.guidelines.cross_platform}/web/js">
+        <copy todir="${dir.build}/assets/web/js">
             <fileset dir="source/js"/>
         </copy>
-        <copy todir="${dir.dist.guidelines.cross_platform}/web/css">
+        <copy todir="${dir.build}/assets/web/css">
             <fileset dir="source/css/screen"/>
         </copy>
-        <copy todir="${dir.dist.guidelines.cross_platform}/web/images">
+        <copy todir="${dir.build}/assets/web/images">
             <fileset dir="source/images">
                 <include name="**/*"/>
             </fileset>
@@ -265,13 +264,15 @@
         </antcall>
     </target>
 
-    <target name="dist" depends="init">
+    <target name="dist" depends="clean, init, build-guidelines-html">
         <!-- TODO does not work with depends="init" only works if init run before -->
         <!-- TODO if depends init works add to all other targets and introduce global initialized param so that init will only be reexecuted if init not run before -->
         <classfileset refid="mei.classpath"/>
         <antcall target="build-customizations"/>
         <antcall target="build-compiled-odds"/>
-        <antcall target="build-guidelines-html"/>
+        <antcall target="build-guidelines-html">
+            <param name="execute.build-steps" value="dist"/>
+        </antcall>
     </target>
 
 </project>
